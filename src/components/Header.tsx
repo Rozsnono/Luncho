@@ -11,9 +11,11 @@ import {
     Sun,
     Moon,
     Briefcase,
+    Sparkles,
 } from 'lucide-react';
 import { useTheme } from './ThemeProvider';
 import WorkScheduleModal from './WorkScheduleModal';
+import AIPlannerModal from './AIPlannerModal';
 import { IWorkSchedule } from '@/types';
 
 interface HeaderProps {
@@ -24,6 +26,11 @@ export default function Header({ initialSchedule }: HeaderProps) {
     const pathname = usePathname();
     const { theme, toggleTheme } = useTheme();
     const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+    const [aiModalOpen, setAiModalOpen] = useState(false);
+
+    if (pathname?.startsWith('/mobile')) {
+        return null;
+    }
 
     const fallbackSchedule: IWorkSchedule = initialSchedule || {
         enabled: true,
@@ -34,13 +41,12 @@ export default function Header({ initialSchedule }: HeaderProps) {
         cycleOffDays: 4,
         shiftHours: '08:00 - 16:30',
         customFreeDates: [],
-        customWorkDates: [],
+        freeDateRanges: [],
         showFreeDayBadges: true,
     };
 
     return (
-        <header className="bg-white dark:bg-[#141416] border-b border-gray-200/80 dark:border-zinc-800/90 px-6 py-2 flex items-center justify-between shadow-xs transition-colors duration-200">
-            {/* Brand */}
+        <header className="bg-white dark:bg-[#141416] border-b border-gray-200/80 dark:border-zinc-800/90 px-6 py-2 flex items-center justify-between shadow-xs transition-colors duration-200 sticky top-0 z-40">
             <Link href="/" className="flex items-center space-x-2">
                 <div className="p-1.5 rounded-lg bg-red-50 dark:bg-red-950/40 text-[#d9222a]">
                     <UtensilsCrossed className="w-5 h-5 stroke-[2.5]" />
@@ -48,7 +54,6 @@ export default function Header({ initialSchedule }: HeaderProps) {
                 <span className="text-xl font-bold tracking-tight text-[#d9222a]">Luncho</span>
             </Link>
 
-            {/* Nav Actions */}
             <div className="flex items-center space-x-2">
                 <Link
                     href="/admin/calendar"
@@ -74,6 +79,17 @@ export default function Header({ initialSchedule }: HeaderProps) {
                     <Layers className="w-4 h-4" />
                     <span>Manage Foods</span>
                 </Link>
+
+                {/* Gemini AI Auto-Plan Button */}
+                <motion.button
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => setAiModalOpen(true)}
+                    className="flex items-center space-x-1.5 px-3.5 py-2 rounded-xl text-xs font-bold bg-gradient-to-r from-red-500/15 via-orange-500/15 to-amber-500/15 border border-red-300 dark:border-red-800 text-[#d9222a] dark:text-red-400 hover:shadow-xs transition-all"
+                >
+                    <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-pulse" />
+                    <span>AI Auto-Plan</span>
+                </motion.button>
 
                 {/* Work Schedule Button */}
                 <motion.button
@@ -101,6 +117,11 @@ export default function Header({ initialSchedule }: HeaderProps) {
                 isOpen={scheduleModalOpen}
                 onClose={() => setScheduleModalOpen(false)}
                 schedule={fallbackSchedule}
+            />
+
+            <AIPlannerModal
+                isOpen={aiModalOpen}
+                onClose={() => setAiModalOpen(false)}
             />
         </header>
     );

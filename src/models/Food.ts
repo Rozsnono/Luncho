@@ -6,6 +6,7 @@ export interface IFoodDoc extends Document {
     description: string;
     allergens: string[];
     category: string;
+    complexity: 'Easy' | 'Normal' | 'Heavy';
     createdAt: Date;
     updatedAt: Date;
 }
@@ -17,6 +18,11 @@ const FoodSchema = new Schema<IFoodDoc>(
         description: { type: String, required: true },
         allergens: { type: [String], default: [] },
         category: { type: String, required: true, default: 'Main' },
+        complexity: {
+            type: String,
+            enum: ['Easy', 'Normal', 'Heavy'],
+            default: 'Normal',
+        },
     },
     { timestamps: true }
 );

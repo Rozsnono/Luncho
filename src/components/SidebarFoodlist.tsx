@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, Zap, Scale, Flame } from 'lucide-react';
 import { IFood } from '@/types';
 import FoodCard from './FoodCard';
 import FoodModal from './FoodModal';
@@ -14,6 +14,7 @@ interface SidebarProps {
 export default function SidebarFoodList({ foods }: SidebarProps) {
     const [search, setSearch] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('All');
+    const [selectedComplexity, setSelectedComplexity] = useState<string>('All');
     const [modalOpen, setModalOpen] = useState(false);
 
     const availableCategories = useMemo(() => {
@@ -24,18 +25,22 @@ export default function SidebarFoodList({ foods }: SidebarProps) {
         return Array.from(set);
     }, [foods]);
 
+    const complexities = ['All', 'Easy', 'Normal', 'Heavy'];
+
     const filteredFoods = foods.filter((food) => {
         const matchesSearch = food.name.toLowerCase().includes(search.toLowerCase());
         const matchesCategory =
             selectedCategory === 'All' || food.category.toLowerCase() === selectedCategory.toLowerCase();
-        return matchesSearch && matchesCategory;
+        const matchesComplexity =
+            selectedComplexity === 'All' || (food.complexity || 'Normal').toLowerCase() === selectedComplexity.toLowerCase();
+        return matchesSearch && matchesCategory && matchesComplexity;
     });
 
     return (
-        <aside className="w-80 flex-shrink-0 flex flex-col h-[calc(100vh-65px)] bg-gray-50/70 dark:bg-[#141416] border-r border-gray-200 dark:border-zinc-800/80 p-4 transition-colors duration-200">
-            <div className="mb-3">
-                <h2 className="text-xs font-bold text-gray-500 dark:text-zinc-400 tracking-wider uppercase mb-2">
-                    Available Foods
+        <aside className="w-84 flex-shrink-0 flex flex-col h-[calc(100vh-65px)] bg-gray-50/70 dark:bg-[#141416] border-r border-gray-200 dark:border-zinc-800/80 p-4 transition-colors duration-200">
+            <div className="mb-3 space-y-2.5">
+                <h2 className="text-xs font-bold text-gray-500 dark:text-zinc-400 tracking-wider uppercase">
+                    Food Inventory
                 </h2>
 
                 {/* Search */}
@@ -50,16 +55,35 @@ export default function SidebarFoodList({ foods }: SidebarProps) {
                     />
                 </div>
 
+                {/* Complexity Filter Pills */}
+                <div className="grid grid-cols-4 gap-1 p-1 bg-gray-200/60 dark:bg-zinc-900 rounded-xl text-[10px] font-bold">
+                    {complexities.map((comp) => {
+                        const isActive = selectedComplexity === comp;
+                        return (
+                            <button
+                                key={comp}
+                                onClick={() => setSelectedComplexity(comp)}
+                                className={`py-1 rounded-lg transition-all ${isActive
+                                        ? 'bg-white dark:bg-zinc-800 text-gray-900 dark:text-zinc-100 shadow-2xs'
+                                        : 'text-gray-600 dark:text-zinc-400 hover:text-gray-900'
+                                    }`}
+                            >
+                                {comp}
+                            </button>
+                        );
+                    })}
+                </div>
+
                 {/* Category Pills */}
-                <div className="flex space-x-1.5 mt-3 overflow-x-auto pb-1 no-scrollbar">
+                <div className="flex space-x-1 overflow-x-auto pb-0.5 no-scrollbar">
                     {availableCategories.map((cat) => {
                         const isActive = selectedCategory.toLowerCase() === cat.toLowerCase();
                         return (
                             <button
                                 key={cat}
                                 onClick={() => setSelectedCategory(cat)}
-                                className={`relative px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap z-0 ${isActive
-                                        ? 'text-gray-900 dark:text-zinc-100 font-semibold'
+                                className={`relative px-2.5 py-0.5 rounded-full text-[11px] font-medium transition-colors whitespace-nowrap z-0 ${isActive
+                                        ? 'text-gray-900 dark:text-zinc-100 font-bold'
                                         : 'text-gray-600 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-200'
                                     }`}
                             >
@@ -77,7 +101,7 @@ export default function SidebarFoodList({ foods }: SidebarProps) {
                 </div>
             </div>
 
-            {/* Cards List */}
+            {/* Food Cards List */}
             <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 py-1">
                 <AnimatePresence mode="popLayout">
                     {filteredFoods.length === 0 ? (
@@ -87,7 +111,7 @@ export default function SidebarFoodList({ foods }: SidebarProps) {
                             exit={{ opacity: 0 }}
                             className="text-xs text-gray-400 dark:text-zinc-500 text-center py-8"
                         >
-                            No foods found.
+                            No foods match the filters.
                         </motion.p>
                     ) : (
                         filteredFoods.map((food) => (
@@ -97,7 +121,6 @@ export default function SidebarFoodList({ foods }: SidebarProps) {
                 </AnimatePresence>
             </div>
 
-            {/* Add New Food */}
             <div className="pt-3 border-t border-gray-200/70 dark:border-zinc-800">
                 <motion.button
                     whileHover={{ scale: 1.02 }}

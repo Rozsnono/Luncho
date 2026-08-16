@@ -19,7 +19,6 @@ export async function getWorkSchedule(): Promise<IWorkSchedule> {
             cycleOffDays: 4,
             shiftHours: '08:00 - 16:30',
             customFreeDates: [],
-            customWorkDates: [],
             showFreeDayBadges: true,
         });
     }

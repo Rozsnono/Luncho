@@ -10,10 +10,14 @@ import {
     Briefcase,
     Coffee,
     Palmtree,
+    Sparkles,
+    Flame,
+    Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 import { IDailyMenu, IFood, IWorkSchedule } from '@/types';
 import { addFoodToDate, removeFoodFromDate } from '@/actions/menuActions';
+import AIPlannerModal from './AIPlannerModal';
 
 interface CalendarGridProps {
     initialMenus: IDailyMenu[];
@@ -35,6 +39,7 @@ export default function CalendarGrid({
 
     const [currentDate, setCurrentDate] = useState(new Date());
     const [dragOverDate, setDragOverDate] = useState<string | null>(null);
+    const [aiModalOpen, setAiModalOpen] = useState(false);
 
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -54,23 +59,26 @@ export default function CalendarGrid({
     const prevMonthDays = new Date(year, month, 0).getDate();
     const startingDayIndex = (firstDayOfMonth + 6) % 7;
 
-    // Determine day status: 'work' | 'free' | 'vacation' | 'none'
     const getDayStatus = (dateStr: string, dateObj: Date) => {
         if (!workSchedule || !workSchedule.enabled) return 'none';
 
-        // 1. Vacation / Custom Free Day Override
+        if (workSchedule.freeDateRanges && workSchedule.freeDateRanges.length > 0) {
+            const isInsideRange = workSchedule.freeDateRanges.some(
+                (r) => dateStr >= r.startDate && dateStr <= r.endDate
+            );
+            if (isInsideRange) return 'vacation';
+        }
+
         if (workSchedule.customFreeDates?.includes(dateStr)) {
             return 'vacation';
         }
 
-        // 2. Weekly Days Mode (Mon=1, Tue=2 ... Sun=0)
         if (workSchedule.mode === 'weekly') {
             const dayOfWeek = dateObj.getDay();
             const isWork = (workSchedule.weeklyWorkDays || [1, 2, 3, 4, 5]).includes(dayOfWeek);
             return isWork ? 'work' : 'free';
         }
 
-        // 3. Rotating Cycle Mode
         if (workSchedule.mode === 'cycle') {
             const baseStart = new Date(workSchedule.cycleStartDate || '2026-01-01');
             const diffTime = dateObj.getTime() - baseStart.getTime();
@@ -152,7 +160,6 @@ export default function CalendarGrid({
 
     return (
         <div className="flex-1 flex flex-col p-6 overflow-y-auto bg-[#fafafa] dark:bg-[#0e0e10] transition-colors duration-200">
-            {/* Top Header Controls */}
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
                     <motion.h1
@@ -174,6 +181,18 @@ export default function CalendarGrid({
                 </div>
 
                 <div className="flex items-center space-x-2">
+                    {!readOnly && (
+                        <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => setAiModalOpen(true)}
+                            className="flex items-center space-x-1.5 bg-gradient-to-r from-red-500/10 via-orange-500/10 to-amber-500/10 border border-red-300 dark:border-red-800/80 text-[#d9222a] dark:text-red-400 text-xs font-bold px-3 py-2 rounded-xl transition-all cursor-pointer shadow-2xs"
+                        >
+                            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+                            <span>AI Auto-Plan</span>
+                        </motion.button>
+                    )}
+
                     <div className="flex items-center border border-gray-200 dark:border-zinc-800 rounded-xl bg-white dark:bg-zinc-900 overflow-hidden shadow-2xs">
                         <motion.button
                             whileTap={{ scale: 0.9 }}
@@ -203,7 +222,6 @@ export default function CalendarGrid({
                 </div>
             </div>
 
-            {/* Calendar Matrix Box */}
             <div className="border border-gray-200/90 dark:border-zinc-800 rounded-2xl overflow-hidden bg-white dark:bg-[#141416] shadow-xs">
                 <div className="grid grid-cols-7 border-b border-gray-200 dark:border-zinc-800 bg-gray-50/70 dark:bg-zinc-900/60 text-center text-xs font-bold text-gray-600 dark:text-zinc-400 py-2.5">
                     {dayHeaders.map((dh, idx) => (
@@ -235,7 +253,6 @@ export default function CalendarGrid({
                                                         : 'bg-white dark:bg-[#141416]'
                                     } ${isHovered ? 'ring-2 ring-[#d9222a] ring-inset bg-red-100/50 dark:bg-red-950/40' : ''}`}
                             >
-                                {/* Cell Header: Day Number + Work / Free / Vacation Badges */}
                                 <div className="flex justify-between items-start text-xs font-semibold mb-1">
                                     <span
                                         className={`${isToday
@@ -253,7 +270,6 @@ export default function CalendarGrid({
                                         )}
                                     </span>
 
-                                    {/* Schedule Indicator Badges */}
                                     {status === 'vacation' && (
                                         <span className="flex items-center space-x-0.5 text-[9px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-900/60">
                                             <Palmtree className="w-2.5 h-2.5" />
@@ -281,7 +297,6 @@ export default function CalendarGrid({
                                     )}
                                 </div>
 
-                                {/* Assigned Meals */}
                                 <div className="space-y-1 overflow-y-auto max-h-[85px]">
                                     <AnimatePresence>
                                         {dayMenu?.foods?.map((food: IFood, fIdx: number) => (
@@ -302,6 +317,12 @@ export default function CalendarGrid({
                                                     <span className="text-[11px] font-medium text-gray-800 dark:text-zinc-200 truncate">
                                                         {food.name}
                                                     </span>
+                                                    {food.complexity === 'Heavy' && (
+                                                        <Flame className="w-3 h-3 text-purple-500 flex-shrink-0" />
+                                                    )}
+                                                    {food.complexity === 'Easy' && (
+                                                        <Zap className="w-3 h-3 text-emerald-500 flex-shrink-0"/>
+                                                    )}
                                                 </div>
 
                                                 {!readOnly && (
@@ -323,6 +344,11 @@ export default function CalendarGrid({
                     })}
                 </div>
             </div>
+
+            <AIPlannerModal
+                isOpen={aiModalOpen}
+                onClose={() => setAiModalOpen(false)}
+            />
         </div>
     );
 }

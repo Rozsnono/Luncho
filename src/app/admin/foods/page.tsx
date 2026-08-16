@@ -48,42 +48,39 @@ export default function FoodManagementPage() {
     const existingCategories = Array.from(new Set(foods.map((f) => f.category).filter(Boolean)));
 
     return (
-        <div className="flex-1 p-8 max-w-6xl mx-auto overflow-y-auto">
-            {/* Top Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-gray-200">
+        <div className="flex-1 p-4 sm:p-8 max-w-6xl mx-auto overflow-y-auto w-full">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-zinc-800">
                 <div>
                     <Link
                         href="/admin/calendar"
-                        className="inline-flex items-center text-xs font-semibold text-gray-500 hover:text-gray-900 mb-2 transition-colors"
+                        className="inline-flex items-center text-xs font-semibold text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-zinc-100 mb-1 transition-colors"
                     >
                         <ArrowLeft className="w-3.5 h-3.5 mr-1" />
                         Back to Calendar
                     </Link>
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+                    <h1 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-zinc-100 tracking-tight">
                         Food Directory & Management
                     </h1>
                 </div>
 
-                {/* Add Food Button */}
                 <motion.button
                     whileHover={{ scale: 1.03 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={handleOpenAdd}
-                    className="flex items-center space-x-2 bg-[#d9222a] hover:bg-[#c01c24] text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-xs transition-colors"
+                    className="flex items-center justify-center space-x-2 bg-[#d9222a] hover:bg-[#c01c24] text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-xs transition-colors w-full sm:w-auto"
                 >
                     <Plus className="w-4 h-4" />
                     <span>Add New Food</span>
                 </motion.button>
             </div>
 
-            {/* Food Cards Grid */}
             {loading ? (
                 <div className="text-center py-16 text-gray-400 text-sm">Loading foods...</div>
             ) : foods.length === 0 ? (
-                <div className="text-center py-20 bg-white border border-dashed border-gray-300 rounded-2xl">
-                    <Utensils className="w-10 h-10 text-gray-300 mx-auto mb-2" />
-                    <h3 className="text-sm font-semibold text-gray-700">No foods created yet</h3>
-                    <p className="text-xs text-gray-400 mt-1 mb-4">
+                <div className="text-center py-20 bg-white dark:bg-zinc-900 border border-dashed border-gray-300 dark:border-zinc-800 rounded-3xl">
+                    <Utensils className="w-10 h-10 text-gray-300 dark:text-zinc-600 mx-auto mb-2" />
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-zinc-300">No foods created yet</h3>
+                    <p className="text-xs text-gray-400 dark:text-zinc-500 mt-1 mb-4">
                         Click the button below to add your first meal item.
                     </p>
                     <button
@@ -96,7 +93,7 @@ export default function FoodManagementPage() {
             ) : (
                 <motion.div
                     layout
-                    className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"
                 >
                     <AnimatePresence>
                         {foods.map((food) => (
@@ -111,7 +108,6 @@ export default function FoodManagementPage() {
                 </motion.div>
             )}
 
-            {/* Modal supporting both Add and Edit */}
             <FoodModal
                 isOpen={isModalOpen}
                 onClose={() => {

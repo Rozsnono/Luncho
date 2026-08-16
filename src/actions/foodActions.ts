@@ -18,6 +18,7 @@ export async function createFood(formData: FormData) {
     const imageUrl = formData.get('imageUrl') as string;
     const description = formData.get('description') as string;
     const category = formData.get('category') as string;
+    const complexity = (formData.get('complexity') as "Easy" | "Normal" | "Heavy") || 'Normal';
     const allergensRaw = formData.get('allergens') as string;
 
     const allergens = allergensRaw
@@ -29,12 +30,14 @@ export async function createFood(formData: FormData) {
         imageUrl,
         description,
         category,
+        complexity,
         allergens,
     });
 
     revalidatePath('/');
     revalidatePath('/admin/foods');
     revalidatePath('/admin/calendar');
+    revalidatePath('/mobile');
 }
 
 export async function updateFood(id: string, formData: FormData) {
@@ -43,6 +46,7 @@ export async function updateFood(id: string, formData: FormData) {
     const imageUrl = formData.get('imageUrl') as string;
     const description = formData.get('description') as string;
     const category = formData.get('category') as string;
+    const complexity = (formData.get('complexity') as "Easy" | "Normal" | "Heavy") || 'Normal';
     const allergensRaw = formData.get('allergens') as string;
 
     const allergens = allergensRaw
@@ -56,6 +60,7 @@ export async function updateFood(id: string, formData: FormData) {
             imageUrl,
             description,
             category,
+            complexity,
             allergens,
         },
         { new: true }
@@ -64,6 +69,7 @@ export async function updateFood(id: string, formData: FormData) {
     revalidatePath('/');
     revalidatePath('/admin/foods');
     revalidatePath('/admin/calendar');
+    revalidatePath('/mobile');
 }
 
 export async function deleteFood(id: string) {
@@ -74,4 +80,5 @@ export async function deleteFood(id: string) {
     revalidatePath('/');
     revalidatePath('/admin/foods');
     revalidatePath('/admin/calendar');
+    revalidatePath('/mobile');
 }

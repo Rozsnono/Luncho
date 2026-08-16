@@ -2,8 +2,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { GripVertical, Trash2, Pencil } from 'lucide-react';
-import { IFood } from '@/types';
+import { GripVertical, Trash2, Pencil, Zap, Scale, Flame } from 'lucide-react';
+import { IFood, FoodComplexity } from '@/types';
 
 interface FoodCardProps {
     food: IFood;
@@ -23,6 +23,33 @@ export default function FoodCard({
         e.dataTransfer.effectAllowed = 'copy';
     };
 
+    const getComplexityBadge = (complexity?: FoodComplexity) => {
+        switch (complexity) {
+            case 'Easy':
+                return (
+                    <span className="flex items-center space-x-0.5 text-[9px] font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-900/40 px-1.5 py-0.5 rounded-md">
+                        <Zap className="w-2.5 h-2.5" />
+                        <span>Easy (1x/wk)</span>
+                    </span>
+                );
+            case 'Heavy':
+                return (
+                    <span className="flex items-center space-x-0.5 text-[9px] font-bold bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-200/60 dark:border-purple-900/40 px-1.5 py-0.5 rounded-md">
+                        <Flame className="w-2.5 h-2.5" />
+                        <span>Heavy (2 days)</span>
+                    </span>
+                );
+            case 'Normal':
+            default:
+                return (
+                    <span className="flex items-center space-x-0.5 text-[9px] font-bold bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-900/40 px-1.5 py-0.5 rounded-md">
+                        <Scale className="w-2.5 h-2.5" />
+                        <span>Normal</span>
+                    </span>
+                );
+        }
+    };
+
     return (
         <motion.div
             layout
@@ -33,13 +60,13 @@ export default function FoodCard({
             whileTap={{ scale: 0.98 }}
             draggable={isDraggable}
             onDragStartCapture={handleDragStart}
-            className={`group relative bg-white dark:bg-zinc-900 border border-gray-200/90 dark:border-zinc-800 rounded-xl p-2.5 flex items-start space-x-3 shadow-xs hover:shadow-md transition-all select-none ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''
+            className={`group relative bg-white dark:bg-zinc-900 border border-gray-200/90 dark:border-zinc-800 rounded-2xl p-2.5 flex items-start space-x-3 shadow-xs hover:shadow-md transition-all select-none ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''
                 }`}
         >
             <img
                 src={food.imageUrl || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c'}
                 alt={food.name}
-                className="w-14 h-14 rounded-lg object-cover flex-shrink-0 bg-gray-100 dark:bg-zinc-800 pointer-events-none"
+                className="w-14 h-14 rounded-xl object-cover flex-shrink-0 bg-gray-100 dark:bg-zinc-800 pointer-events-none"
             />
             <div className="flex-1 min-w-0 pr-12">
                 <h4 className="text-xs font-bold text-gray-900 dark:text-zinc-100 truncate">
@@ -49,13 +76,14 @@ export default function FoodCard({
                     {food.description}
                 </p>
                 <div className="flex flex-wrap items-center gap-1 mt-1.5">
-                    <span className="text-[10px] font-semibold bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border border-orange-200/60 dark:border-orange-900/40 px-1.5 py-0.5 rounded-md">
+                    {getComplexityBadge(food.complexity)}
+                    <span className="text-[9px] font-semibold bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border border-orange-200/60 dark:border-orange-900/40 px-1.5 py-0.5 rounded-md">
                         {food.category}
                     </span>
                     {food.allergens?.map((allergen, idx) => (
                         <span
                             key={idx}
-                            className="text-[10px] bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/40 px-1.5 py-0.5 rounded-md"
+                            className="text-[9px] bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-100 dark:border-red-900/40 px-1.5 py-0.5 rounded-md"
                         >
                             {allergen}
                         </span>

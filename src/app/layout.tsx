@@ -37,7 +37,7 @@ export default async function RootLayout({
       <body className="bg-[#fafafa] dark:bg-[#0e0e10] text-gray-900 dark:text-zinc-100 min-h-screen flex flex-col antialiased">
         <ThemeProvider>
           <Header initialSchedule={schedule} />
-          <main className="flex-1 flex overflow-hidden">{children}</main>
+          <main className="flex-1 flex flex-col min-h-0">{children}</main>
         </ThemeProvider>
       </body>
     </html>

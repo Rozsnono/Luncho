@@ -1,3 +1,5 @@
+export type FoodComplexity = 'Easy' | 'Normal' | 'Heavy';
+
 export interface IFood {
     _id: string;
     name: string;
@@ -5,6 +7,7 @@ export interface IFood {
     description: string;
     allergens: string[];
     category: string;
+    complexity: FoodComplexity;
 }
 
 export interface IDailyMenu {
@@ -13,17 +16,22 @@ export interface IDailyMenu {
     foods: IFood[];
 }
 
+export interface IFreeDateRange {
+    startDate: string; // 'YYYY-MM-DD'
+    endDate: string;   // 'YYYY-MM-DD'
+    label?: string;    // e.g. "Summer Vacation", "Holiday Week"
+}
+
 export interface IWorkSchedule {
     _id?: string;
     enabled: boolean;
     mode: 'weekly' | 'cycle';
-    // 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat, 0 = Sun
     weeklyWorkDays: number[];
     cycleStartDate: string;
     cycleWorkDays: number;
     cycleOffDays: number;
     shiftHours: string;
-    customFreeDates: string[]; // Specific dates marked as vacation/free ('YYYY-MM-DD')
-    customWorkDates: string[]; // Specific dates marked as overtime/work ('YYYY-MM-DD')
+    customFreeDates: string[];
+    freeDateRanges: IFreeDateRange[];
     showFreeDayBadges: boolean;
 }

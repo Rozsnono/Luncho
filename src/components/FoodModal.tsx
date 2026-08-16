@@ -2,9 +2,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Plus, Sparkles, Check } from 'lucide-react';
+import { X, Plus, Sparkles, Check, Zap, Scale, Flame } from 'lucide-react';
 import { createFood, updateFood } from '@/actions/foodActions';
-import { IFood } from '@/types';
+import { IFood, FoodComplexity } from '@/types';
 
 interface FoodModalProps {
   isOpen: boolean;
@@ -25,6 +25,7 @@ export default function FoodModal({
   const [description, setDescription] = useState('');
   const [allergens, setAllergens] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('Main');
+  const [complexity, setComplexity] = useState<FoodComplexity>('Normal');
   const [isCustomCategory, setIsCustomCategory] = useState(false);
   const [customCategoryVal, setCustomCategoryVal] = useState('');
 
@@ -37,6 +38,7 @@ export default function FoodModal({
       setImageUrl(foodToEdit.imageUrl || '');
       setDescription(foodToEdit.description || '');
       setAllergens(foodToEdit.allergens ? foodToEdit.allergens.join(', ') : '');
+      setComplexity(foodToEdit.complexity || 'Normal');
 
       if (allCategories.includes(foodToEdit.category)) {
         setSelectedCategory(foodToEdit.category);
@@ -51,6 +53,7 @@ export default function FoodModal({
       setImageUrl('');
       setDescription('');
       setAllergens('');
+      setComplexity('Normal');
       setSelectedCategory('Main');
       setIsCustomCategory(false);
       setCustomCategoryVal('');
@@ -75,6 +78,7 @@ export default function FoodModal({
     const formData = new FormData(e.currentTarget);
     const finalCategory = isCustomCategory ? customCategoryVal.trim() : selectedCategory;
     formData.set('category', finalCategory || 'General');
+    formData.set('complexity', complexity);
 
     try {
       if (foodToEdit) {
@@ -94,7 +98,6 @@ export default function FoodModal({
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          {/* Backdrop Blur */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -104,15 +107,13 @@ export default function FoodModal({
             onClick={onClose}
           />
 
-          {/* Modal Content Box */}
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 10 }}
             transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-            className="bg-white dark:bg-[#18181b] rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-gray-100 dark:border-zinc-800 z-10 overflow-hidden text-gray-900 dark:text-zinc-100"
+            className="bg-white dark:bg-[#18181b] rounded-3xl max-w-md w-full p-6 shadow-2xl relative border border-gray-100 dark:border-zinc-800 z-10 overflow-hidden text-gray-900 dark:text-zinc-100 max-h-[92vh] overflow-y-auto"
           >
-            {/* Top Bar */}
             <div className="flex items-center justify-between pb-3 border-b border-gray-100 dark:border-zinc-800 mb-4">
               <div className="flex items-center space-x-2.5">
                 <div className="p-2 bg-red-50 dark:bg-red-950/40 text-[#d9222a] dark:text-red-400 rounded-xl">
@@ -143,9 +144,56 @@ export default function FoodModal({
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
-                  placeholder="e.g. Veggie Pasta"
+                  placeholder="e.g. Beef Goulash Stew"
                   className="w-full text-xs px-3.5 py-2.5 border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-[#d9222a] focus:outline-none transition-all placeholder-gray-400 dark:placeholder-zinc-500 text-gray-900 dark:text-zinc-100"
                 />
+              </div>
+
+              {/* Food Complexity & Recurrence Type Selection */}
+              <div>
+                <label className="block text-[11px] font-semibold text-gray-600 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
+                  Meal Type & Recurrence
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setComplexity('Easy')}
+                    className={`flex flex-col items-center p-2 rounded-2xl border text-center transition-all ${complexity === 'Easy'
+                        ? 'border-emerald-500 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 shadow-2xs font-bold'
+                        : 'border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-900'
+                      }`}
+                  >
+                    <Zap className="w-4 h-4 mb-0.5 text-emerald-600" />
+                    <span className="text-xs">Easy</span>
+                    <span className="text-[9px] opacity-75 mt-0.5">1x per week</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setComplexity('Normal')}
+                    className={`flex flex-col items-center p-2 rounded-2xl border text-center transition-all ${complexity === 'Normal'
+                        ? 'border-blue-500 bg-blue-50/70 dark:bg-blue-950/40 text-blue-800 dark:text-blue-300 shadow-2xs font-bold'
+                        : 'border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-900'
+                      }`}
+                  >
+                    <Scale className="w-4 h-4 mb-0.5 text-blue-600" />
+                    <span className="text-xs">Normal</span>
+                    <span className="text-[9px] opacity-75 mt-0.5">Standard</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setComplexity('Heavy')}
+                    className={`flex flex-col items-center p-2 rounded-2xl border text-center transition-all ${complexity === 'Heavy'
+                        ? 'border-purple-500 bg-purple-50/70 dark:bg-purple-950/40 text-purple-800 dark:text-purple-300 shadow-2xs font-bold'
+                        : 'border-gray-200 dark:border-zinc-800 text-gray-600 dark:text-zinc-400 hover:bg-gray-50 dark:hover:bg-zinc-900'
+                      }`}
+                  >
+                    <Flame className="w-4 h-4 mb-0.5 text-purple-600" />
+                    <span className="text-xs">Heavy</span>
+                    <span className="text-[9px] opacity-75 mt-0.5">Repeat 2 days</span>
+                  </button>
+                </div>
               </div>
 
               <div>
@@ -173,7 +221,7 @@ export default function FoodModal({
                   onChange={(e) => setDescription(e.target.value)}
                   required
                   rows={2}
-                  placeholder="Hearty vegetable pasta with fresh herbs and olive oil..."
+                  placeholder="Hearty vegetable stew with root veggies..."
                   className="w-full text-xs px-3.5 py-2.5 border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 rounded-xl focus:ring-2 focus:ring-red-500/20 focus:border-[#d9222a] focus:outline-none resize-none transition-all placeholder-gray-400 dark:placeholder-zinc-500 text-gray-900 dark:text-zinc-100"
                 />
               </div>
@@ -244,7 +292,6 @@ export default function FoodModal({
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="pt-3 flex items-center justify-end space-x-2 border-t border-gray-100 dark:border-zinc-800 mt-2">
                 <button
                   type="button"
