@@ -32,6 +32,7 @@ export default function FoodCard({
             whileHover={{ y: -2, transition: { duration: 0.15 } }}
             whileTap={{ scale: 0.98 }}
             draggable={isDraggable}
+            // @ts-expect-error framer-motion types conflict with React's HTML5 drag events
             onDragStart={handleDragStart}
             className={`group relative bg-white border border-gray-200/90 rounded-xl p-2.5 flex items-start space-x-3 shadow-xs hover:shadow-md transition-shadow select-none ${isDraggable ? 'cursor-grab active:cursor-grabbing' : ''
                 }`}
