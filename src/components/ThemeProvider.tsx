@@ -10,30 +10,39 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-    theme: 'light',
+    theme: 'dark',
     toggleTheme: () => { },
 });
 
 export const useTheme = () => useContext(ThemeContext);
 
 export default function ThemeProvider({ children }: { children: React.ReactNode }) {
-    const [theme, setTheme] = useState<Theme>('dark'); // Defaulting to dark as requested
+    const [theme, setTheme] = useState<Theme>('dark');
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        const stored = localStorage.getItem('luncho-theme') as Theme | null;
-        if (stored) {
-            setTheme(stored);
-            document.documentElement.classList.toggle('dark', stored === 'dark');
-        } else {
+        setMounted(true);
+        const savedTheme = localStorage.getItem('luncho-theme') as Theme | null;
+        const initialTheme = savedTheme || 'dark';
+
+        setTheme(initialTheme);
+        if (initialTheme === 'dark') {
             document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
         }
     }, []);
 
     const toggleTheme = () => {
-        const next = theme === 'light' ? 'dark' : 'light';
-        setTheme(next);
-        localStorage.setItem('luncho-theme', next);
-        document.documentElement.classList.toggle('dark', next === 'dark');
+        const nextTheme: Theme = theme === 'dark' ? 'light' : 'dark';
+        setTheme(nextTheme);
+        localStorage.setItem('luncho-theme', nextTheme);
+
+        if (nextTheme === 'dark') {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
     };
 
     return (
